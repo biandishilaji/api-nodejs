@@ -4,11 +4,15 @@ const db = require('./connection')
 
 const jwtVerify = require('./middleware/jwt')
 
+var multer = require('multer');
+
 const jwt = require('jsonwebtoken');
 
 const bcrypt = require('bcrypt');
 
 const routes = Router();
+
+var upload = multer({ dest: 'uploads/' })
 
 routes.get('/', (req, res) => {
     res.json({ message: "Tudo ok por aqui!" });
@@ -57,7 +61,7 @@ routes.post('/login', (req, response) => {
             })
     }
     else {
-        return res.send('Informe E-mail e senha.')
+        return res.send('Informe E-mail e Senha.')
     }
 
 })
@@ -76,7 +80,7 @@ routes.post('/create/user', (req, res) => {
                 else {
                     bcrypt.hash(password, 10, function (err, hash) {
 
-                        const insert = `INSERT INTO users (name, email, password) VALUES ('${name}', '${email}', '${hash}')`;
+                        const insert = `INSERT INTO users (name, email, password) VALUES ('${name}', '${email}', '${hash}', now())`;
 
                         db.query(insert, function (err, result) {
                             if (err) throw err;
@@ -87,7 +91,7 @@ routes.post('/create/user', (req, res) => {
             })
     }
     else {
-        return res.send('Informa todos os dados solicitados para continuar.')
+        return res.send('Informe todos os dados solicitados para continuar.')
     }
 
 })
@@ -97,7 +101,21 @@ routes.post('/logout', jwtVerify, function (req, res) {
     res.json({ auth: false, token: null });
 })
 
-routes.post('/post', jwtVerify, function (req, res){
+routes.post('/post', jwtVerify, upload.single('avatar'), function (req, res) {
+
+    console.log(req.body)
+
+    const { title } = req.body
+
+    const user_id = req.userId
+
+    const insert = `INSERT INTO posts (user_id, title, image_url, created_at)
+ VALUES ('${user_id}', '${title}', '${req.file.filename}', now())`;
+
+    db.query(insert, function (err, result) {
+        if (err) throw err;
+        return res.send('Post criado com sucesso!')
+    });
 
 })
 
