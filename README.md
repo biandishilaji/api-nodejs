@@ -1,1 +1,2 @@
-Por preguiça, acabei não subindo algumas alterações e perdi alguns commits. Em algum momento irei retomar este projeto.
+Projeto baseado no 9gag
+em algum momento do futuro eu vou retormar esse projeto
